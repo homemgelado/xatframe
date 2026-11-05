@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yeti — Xatframe</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #0b1a2b 0%, #1e3a5f 40%, #3a6b99 100%);
+      font-family: sans-serif;
+    }
+
+    /* Estrelas */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 60%;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    /* Neve caindo */
+    .snow-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .snow {
+      position: absolute;
+      top: -10px;
+      color: #fff;
+      font-size: 1em;
+      animation: fall linear infinite;
+      opacity: 0.8;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-10px); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* Montanhas ao fundo */
+    .mountains {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 55%;
+    }
+    .mountain {
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+    .m1 { border-width: 0 180px 280px 180px; border-color: transparent transparent #2a4a73 transparent; left: 5%; }
+    .m2 { border-width: 0 220px 320px 220px; border-color: transparent transparent #32588a transparent; left: 25%; }
+    .m3 { border-width: 0 260px 360px 260px; border-color: transparent transparent #2a4a73 transparent; left: 55%; }
+    .m4 { border-width: 0 200px 300px 200px; border-color: transparent transparent #32588a transparent; right: 5%; }
+
+    /* Árvores com movimento */
+    .trees {
+      position: absolute;
+      bottom: 80px;
+      width: 100%;
+      height: 35%;
+    }
+    .tree {
+      position: absolute;
+      bottom: 0;
+      transform-origin: bottom center;
+      animation: sway 4s ease-in-out infinite alternate;
+    }
+    .tree:nth-child(odd) { animation-duration: 5s; }
+    .tree:nth-child(even) { animation-duration: 3.5s; animation-delay: 0.5s; }
+    @keyframes sway {
+      0% { transform: rotate(-1.5deg); }
+      100% { transform: rotate(1.5deg); }
+    }
+
+    /* Personagem — pixel art */
+    .character-container {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    .character {
+      width: 340px;
+      height: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    }
+
+    /* Frase centralizada */
+    .phrase {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ffffff;
+      font-size: 1.35em;
+      line-height: 1.8;
+      text-align: center;
+      font-weight: 600;
+      text-shadow:
+        0 0 8px rgba(0,0,0,0.8),
+        0 0 20px rgba(100,180,255,0.4);
+      background: rgba(0, 15, 35, 0.55);
+      padding: 20px 35px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      max-width: 80%;
+      z-index: 20;
+    }
+
+    /* Chão de neve */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to bottom, #e6f0fa 0%, #cfe0f5 100%);
+      border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Estrelas -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Montanhas -->
+  <div class="mountains">
+    <div class="mountain m1"></div>
+    <div class="mountain m2"></div>
+    <div class="mountain m3"></div>
+    <div class="mountain m4"></div>
+  </div>
+
+  <!-- Árvores -->
+  <div class="trees" id="trees"></div>
+
+  <!-- Frase centralizada -->
+  <div class="phrase">
+    Meus sonhos e meus planos interessam a mim e .. a mim !!<br>
+    Portanto, poupe-se de decifrá-los.
+  </div>
+
+  <!-- Personagem — sua imagem pixel art -->
+  <div class="character-container">
+    <svg class="character" viewBox="0 0 960 960" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="furLight" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#f0f8ff"/>
+        </linearGradient>
+        <linearGradient id="furMid" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e0effc"/>
+          <stop offset="100%" stop-color="#bdd7ee"/>
+        </linearGradient>
+        <linearGradient id="furDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#9fc5e8"/>
+          <stop offset="100%" stop-color="#7fb3d3"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Contorno geral -->
+      <g fill="none" stroke="#2a4a73" stroke-width="6">
+        <!-- Corpo principal -->
+        <path d="M480 80 
+                  C560 40 660 60 720 120 
+                  C780 180 800 280 780 360
+                  C760 440 700 500 720 580
+                  C740 660 780 740 760 820
+                  C740 880 660 920 580 900
+                  C500 880 420 920 340 900
+                  C260 880 200 820 220 740
+                  C240 660 280 580 260 500
+                  C240 420 180 340 240 240
+                  C300 160 400 120 480 80 Z"/>
+      </g>
+
+      <!-- Pele/Pelo claro - áreas principais -->
+      <g fill="url(#furLight)">
+        <!-- Cabeça -->
+        <path d="M480 90 C540 60 620 75 680 130 C730 185 745 265 715 325 C685 385 625 415 565 395 C505 375 435 385 385 345 C335 305 345 225 395 165 C445 115 420 100 480 90 Z"/>
+        <!-- Peito -->
+        <path d="M480 300 C540 310 600 350 630 410 C660 470 650 530 610 580 C570 630 510 660 480 650 C450 660 390 630 350 580 C310 530 300 470 330 410 C360 350 420 310 480 300 Z"/>
+        <!-- Ombro e braço esquerdo -->
+        <path d="M300 200 C360 180 410 220 430 280 C450 340 430 400 380 440 C330 480 260 490 210 450 C160 410 140 330 180 260 C220 200 240 220 300 200 Z"/>
+        <!-- Ombro e braço direito -->
+        <path d="M660 200 C720 180 780 220 820 280 C860 340 860 420 810 470 C760 520 690 530 640 490 C590 450 570 370 610 300 C650 230 600 220 660 200 Z"/>
+        <!-- Mão esquerda -->
+        <path d="M140 540 C180 520 220 540 240 580 C260 620 260 660 230 700 C200 740 150 750 110 720 C70 690 60 630 90 580 C120 530 100 560 140 540 Z"/>
+        <!-- Mão direita -->
+        <path d="M820 540 C860 520 900 540 920 580 C940 620 940 660 910 700 C880 740 830 750 790 720 C750 690 740 630 770 580 C800 530 780 560 820 540 Z"/>
+        <!-- Joelho/Pé esquerdo -->
+        <path d="M300 720 C340 700 380 720 400 760 C420 800 420 840 390 870 C360 900 310 910 270 880 C230 850 220 790 250 740 C280 690 260 720 300 720 Z"/>
+        <!-- Joelho/Pé direito -->
+        <path d="M660 720 C700 700 740 720 760 760 C780 800 780 840 750 870 C720 900 670 910 630 880 C590 850 580 790 610 740 C640 690 620 720 660 720 Z"/>
+      </g>
+
+      <!-- Pelo tom médio -->
+      <g fill="url(#furMid)" opacity="0.85">
+        <path d="M320 380 C350 420 360 470 340 510 C320 550 280 570 250 550 C220 530 210 480 230 440 C250 400 290 360 320 380 Z"/>
+        <path d="M640 380 C670 420 680 470 660 510 C640 550 600 570 570 550 C540 530 530 480 550 440 C570 400 610 360 640 380 Z"/>
+        <path d="M400 520 C430 560 440 600 420 640 C400 680 350 700 320 670 C290 640 290 590 320 550 C350 510 370 480 400 520 Z"/>
+        <path d="M560 520 C590 560 600 600 580 640 C560 680 510 700 480 670 C450 640 450 590 480 550 C510 510 530 480 560 520 Z"/>
+        <!-- Barba/pelo do queixo -->
+        <path d="M400 340 C440 370 520 370 560 340 C580 360 570 400 530 420 C490 440 430 440 390 420 C370 400 360 360 400 340 Z"/>
+      </g>
+
+      <!-- Orelha -->
+      <ellipse cx="410" cy="200" rx="35" ry="45" fill="url(#furMid)" stroke="#2a4a73" stroke-width="5"/>
+      <ellipse cx="400" cy="190" rx="18" ry="25" fill="#7fb3d3" opacity="0.6"/>
+
+      <!-- Olhos -->
+      <ellipse cx="540" cy="210" rx="22" ry="28" fill="#2b2b2b"/>
+      <ellipse cx="660" cy="220" rx="20" ry="26" fill="#2b2b2b"/>
+      <circle cx="530" cy="200" r="7" fill="#fff"/>
+      <circle cx="650" cy="210" r="6" fill="#fff"/>
+      <!-- Íris castanha -->
+      <ellipse cx="545" cy="215" rx="12" ry="16" fill="#922b21"/>
+      <ellipse cx="665" cy="225" rx="11" ry="14" fill="#922b21"/>
+
+      <!-- Nariz -->
+      <ellipse cx="600" cy="270" rx="35" ry="24" fill="#5d6d7e"/>
+      <ellipse cx="590" cy="265" rx="12" ry="8" fill="#aeb6bf" opacity="0.5"/>
+
+      <!-- Boca -->
+      <path d="M500 310 C540 330 620 330 660 310" stroke="#4a5c6e" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M520 320 L530 340 M640 320 L630 340" stroke="#4a5c6e" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- Detalhes de pelo/sombra escura -->
+      <g fill="url(#furDark)" opacity="0.45">
+        <path d="M300 600 C330 640 340 680 320 720 C300 760 260 780 240 750 C220 720 230 670 260 630 C290 590 270 620 300 600 Z"/>
+        <path d="M660 600 C690 640 700 680 680 720 C660 760 620 780 600 750 C580 720 590 670 620 630 C650 590 630 620 660 600 Z"/>
+        <path d="M420 680 C450 720 460 760 440 800 C420 840 370 860 340 830 C310 800 320 750 350 710 C380 670 400 660 420 680 Z"/>
+        <path d="M540 680 C570 720 580 760 560 800 C540 840 490 860 460 830 C430 800 440 750 470 710 C500 670 520 660 540 680 Z"/>
+      </g>
+
+      <!-- Detalhe umbilical -->
+      <ellipse cx="480" cy="480" rx="10" ry="7" fill="#9fc5e8" opacity="0.5"/>
+
+      <!-- Pontos brilhantes nos joelhos/pés -->
+      <circle cx="320" cy="840" r="18" fill="#fff" opacity="0.6"/>
+      <circle cx="640" cy="840" r="18" fill="#fff" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <!-- Chão -->
+  <div class="ground"></div>
+
+  <!-- Neve -->
+  <div class="snow-container" id="snow"></div>
+
+  <script>
+    // Estrelas
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 80; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2.5 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      starsContainer.appendChild(star);
+    }
+
+    // Neve
+    const snowContainer = document.getElementById('snow');
+    function createSnowflake() {
+      const flake = document.createElement('div');
+      flake.className = 'snow';
+      flake.textContent = '❄';
+      flake.style.left = Math.random() * 100 + '%';
+      flake.style.animationDuration = (Math.random() * 5 + 6) + 's';
+      flake.style.fontSize = (Math.random() * 0.8 + 0.6) + 'em';
+      flake.style.opacity = Math.random() * 0.5 + 0.4;
+      snowContainer.appendChild(flake);
+      setTimeout(() => flake.remove(), 12000);
+    }
+    setInterval(createSnowflake, 300);
+    for (let i = 0; i < 25; i++) setTimeout(createSnowflake, i * 100);
+
+    // Árvores
+    const treesContainer = document.getElementById('trees');
+    const treeCount = 10;
+    for (let i = 0; i < treeCount; i++) {
+      const tree = document.createElement('div');
+      tree.className = 'tree';
+      const h = Math.random() * 70 + 60;
+      tree.style.left = (i * (100 / treeCount) + Math.random() * 4) + '%';
+      tree.innerHTML = `
+        <svg width="${h * 0.6}" height="${h}" viewBox="0 0 60 100">
+          <polygon points="30,5 5,40 55,40" fill="#1e8449"/>
+          <polygon points="30,25 10,60 50,60" fill="#239b56"/>
+          <polygon points="30,45 5,85 55,85" fill="#28b463"/>
+          <rect x="25" y="85" width="10" height="15" fill="#784212"/>
+        </svg>`;
+      treesContainer.appendChild(tree);
+    }
+  </script>
+</body>
+</html>
